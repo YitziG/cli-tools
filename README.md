@@ -4,6 +4,14 @@ This repository is a collection of versatile bash scripts aimed to simplify vari
 
 ## Scripts
 
+### `rpass`
+
+Generates a secure, random password and copies it to the clipboard. It uses pwgen for generating the password and pbcopy (macOS) for clipboard operations. The script checks for pwgen and attempts to install it if not present.
+
+> Usage: `rpass`
+
+**Dependencies**: `pwgen` (The script checks for `pwgen` and gives install instructions if not present.)
+
 ### `rname`
 
 Generates two random proper names using the list of proper names available on Unix-based systems and copies them to the clipboard.
