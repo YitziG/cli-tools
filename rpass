@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Check for pwgen
+if ! command -v pwgen >/dev/null 2>&1; then
+    echo "The pwgen utility is not installed."
+    echo "Please install it and run the script again."
+    echo "On MacOS: brew install pwgen"
+    exit 1
+fi
+
+# Generate a secure password
+password=$(pwgen -s -y -c -n 20 1)
+
+# Echo the password to stdout
+echo "Generated password: $password"
+
+# Copy password to clipboard
+echo -n "$password" | pbcopy

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+echo "$(sort -R /usr/share/dict/propernames | head -n 1) $(sort -R /usr/share/dict/propernames | head -n 1)" | pbcopy

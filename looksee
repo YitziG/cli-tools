@@ -1,0 +1,9 @@
+#!/bin/bash
+
+URL=$1
+SYSTEM=$2
+
+curl -s "$URL" | \
+html2text | \
+ttok -t 4000 | \
+llm --system "$2" -s
