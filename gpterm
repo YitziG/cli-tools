@@ -1,0 +1,72 @@
+#!/bin/bash
+
+# Default values
+MODEL="gpt-4"
+SYSTEM_MESSAGE="You are a helpful assistant."
+API_KEY_FILE="$HOME/.openai_api_key"
+
+# Parse flags
+while getopts m:s: flag
+do
+    case "${flag}" in
+        m) MODEL=${OPTARG};;
+        s) SYSTEM_MESSAGE=${OPTARG};;
+    esac
+done
+
+# Remove the parsed flags
+shift $((OPTIND-1))
+
+# Check if API key file exists
+if [ -f "$API_KEY_FILE" ]
+then
+    API_KEY=$(cat $API_KEY_FILE)
+else
+    # Prompt for API key
+    echo "Please enter your OpenAI API key:"
+    read API_KEY
+
+    # Save API key
+    echo $API_KEY > $API_KEY_FILE
+fi
+
+# Check if jq is installed
+if ! command -v jq &> /dev/null
+then
+    echo "jq could not be found, attempting to install it..."
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        sudo apt-get update
+        sudo apt-get install jq
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+        brew install jq
+    else
+        echo "Could not install jq. Please install it manually."
+        exit 1
+    fi
+fi
+
+# Create the initial JSON string with the system message
+JSON_STRING='{
+    "model": "'$MODEL'",
+    "messages": [
+        {"role": "system", "content": "'$SYSTEM_MESSAGE'"}'
+        
+# Loop over all remaining command-line arguments (user messages)
+for USER_MESSAGE in "$@"
+do
+    # Append the user message to the JSON string
+    JSON_STRING=$JSON_STRING',
+        {"role": "user", "content": "'$USER_MESSAGE'"}'
+done
+
+# Close the JSON string
+JSON_STRING=$JSON_STRING'
+    ]
+}'
+
+# Make the API request and parse the response to get the assistant's message
+curl -s -X POST \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer $API_KEY" \
+    https://api.openai.com/v1/chat/completions \
+    -d "$JSON_STRING" | jq -r '.choices[0].message.content'
